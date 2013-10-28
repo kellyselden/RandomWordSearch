@@ -1,20 +1,16 @@
 class Game
-	def initialize
+	def initialize height, width
 		words = getWords
-		@@Height = 10
-		@@Width = 10
-		setUpGrid
-		@@Directions = [0,1,2,3,4,5,6,7]
-		@@Directions = @@Directions.shuffle
-		@@Directions.each do |x| print x end
-		return
-		placeWord words[0], 0
+		@height = height
+		@width = width
+		setUp
+		words.each {|word| placeWord word}
 		#fillRemainingGrid
 		printWords words
 		puts
 		printGrid
 	end
-	
+
 private
 
 	def getWords
@@ -48,34 +44,42 @@ private
 		return words
 	end
 
-	def setUpGrid
-		@@grid = Array.new @@Height
-		for i in 0..@@Height-1
-			@@grid[i] = Array.new @@Width
+	def setUp
+		@grid = Array.new @height
+		for i in 0..@height-1
+			@grid[i] = Array.new @width
 		end
+		@locations = Array(0..@height*@width).shuffle
 	end
 
 	def fillRemainingGrid
-		for i in 0..@@grid.length-1
-			for j in 0..@@grid[i].length-1
-				if @@grid[i][j] == nil then
-					@@grid[i][j] = (rand(26) + 65).chr
+		for i in 0..@grid.length-1
+			for j in 0..@grid[i].length-1
+				if @grid[i][j] == nil then
+					@grid[i][j] = (rand(26) + 65).chr
 				end
 			end
 		end
 	end
 
-	def placeWord word, letterIndex, lastX = nil, lastY = nil
+	def placeWord word, letterIndex = 0, lastX = nil, lastY = nil
 		if letterIndex == word.length - 1 then
-			return
+			return true
 		end
 		if letterIndex == 0 then
-			nextX = rand @@Width
-			nextY = rand @@Height
+			if @locations.empty? then
+				return false
+			end
+			for location in @locations
+				nextX = location % @width
+				nextY = location / @height
+				@grid[nextY][nextX] = word[letterIndex]
+				next if !placeWord(word, letterIndex + 1, nextX, nextY)
+				@locations.delete(nextY * @width + nextX)
+				return true
+			end
 		else
-			@@Direction.shuffle
-			begin
-				direction = rand(8)
+			for direction in Array(0..7).shuffle
 				nextX = lastX
 				nextY = lastY
 				case direction
@@ -100,24 +104,29 @@ private
 					when 7
 						nextX -= 1
 				end
-			end while nextX == -1 || nextY == -1 || nextX == @@Width || nextY == @@Height || @@grid[nextX][nextY] != nil
+				next if nextX == -1 || nextY == -1 || nextX == @width || nextY == @height || @grid[nextY][nextX] != nil
+				@grid[nextY][nextX] = word[letterIndex]
+				next if !placeWord(word, letterIndex + 1, nextX, nextY)
+				@locations.delete(nextY * @width + nextX)
+				return true
+			end
 		end
-		@@grid[nextX][nextY] = word[letterIndex]
-		placeWord(word, letterIndex + 1, nextX, nextY)
+		@grid[lastY][lastX] = nil
+		return false
 	end
 
 	def printWords words
 		words.each {|word| puts word}
 	end
-	
+
 	def printGrid
-		for i in 0..@@grid.length-1
-			for j in 0..@@grid[i].length-1
-				print @@grid[i][j] || "_"
+		for i in 0..@grid.length-1
+			for j in 0..@grid[i].length-1
+				print @grid[i][j] || "_"
 			end
 			puts
 		end
 	end
 end
 
-Game.new
+Game.new 10, 10
