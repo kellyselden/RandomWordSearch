@@ -1,5 +1,8 @@
 class Game
-	def initialize height, width
+	def initialize height, width, seed
+		@random = Random.new seed
+		puts seed
+		puts
 		words = getWords
 		@height = height
 		@width = width
@@ -21,11 +24,11 @@ private
 			numOfLines += 1
 		end
 
-		numOfWords = rand(10) + 1
+		numOfWords = @random.rand(10) + 1
 		lineNumbers = Array.new
 		for i in 0..numOfWords-1
 			begin
-				r = rand(numOfLines)
+				r = @random.rand(numOfLines)
 			end while lineNumbers.include? r
 			lineNumbers.push r
 		end
@@ -49,14 +52,14 @@ private
 		for i in 0..@height-1
 			@grid[i] = Array.new @width
 		end
-		@locations = Array(0..@height*@width).shuffle
+		@locations = Array(0..@height*@width).shuffle(random: @random)
 	end
 
 	def fillRemainingGrid
 		for i in 0..@grid.length-1
 			for j in 0..@grid[i].length-1
 				if @grid[i][j] == nil then
-					@grid[i][j] = (rand(26) + 65).chr
+					@grid[i][j] = (@random.rand(26) + 65).chr
 				end
 			end
 		end
@@ -79,7 +82,7 @@ private
 				return true
 			end
 		else
-			for direction in Array(0..7).shuffle
+			for direction in Array(0..7).shuffle(random: @random)
 				nextX = lastX
 				nextY = lastY
 				case direction
@@ -129,4 +132,4 @@ private
 	end
 end
 
-Game.new 10, 10
+Game.new 10, 10, ARGV.empty? ? Random.new_seed : ARGV[0].to_i
