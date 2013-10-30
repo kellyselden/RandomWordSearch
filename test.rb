@@ -4,13 +4,13 @@ class Game
 		puts seed
 		puts
 		words = getWords
+		printWords words
+		puts
 		@height = height
 		@width = width
 		setUp
 		words.each {|word| placeWord word}
 		#fillRemainingGrid
-		printWords words
-		puts
 		printGrid
 	end
 
@@ -38,7 +38,7 @@ private
 		File.foreach(filename) do |line|
 			for i in 0..numOfWords
 				if lineNumber == lineNumbers[i] then
-					words.push line.upcase
+					words.push line.chomp.upcase
 				end
 			end
 			lineNumber += 1
