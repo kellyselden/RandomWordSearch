@@ -52,7 +52,7 @@ private
 		for i in 0..@height-1
 			@grid[i] = Array.new @width
 		end
-		@locations = Array(0..@height*@width).shuffle(random: @random)
+		@locations = Array(0..@height*@width-1).shuffle(random: @random)
 	end
 
 	def fillRemainingGrid
@@ -66,7 +66,7 @@ private
 	end
 
 	def placeWord word, letterIndex = 0, lastX = nil, lastY = nil
-		if letterIndex == word.length - 1 then
+		if letterIndex == word.length then
 			return true
 		end
 		if letterIndex == 0 then
@@ -113,9 +113,9 @@ private
 				@locations.delete(nextY * @width + nextX)
 				return true
 			end
+			@grid[lastY][lastX] = nil
+			return false
 		end
-		@grid[lastY][lastX] = nil
-		return false
 	end
 
 	def printWords words
