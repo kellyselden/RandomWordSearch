@@ -1,17 +1,18 @@
+require './Grid'
+
 class Game
 	def initialize height, width, seed
+		@canCrissCross = true
 		@random = Random.new seed
 		puts seed
 		puts
 		words = getWords
 		printWords words
 		puts
-		@height = height
-		@width = width
-		setUp
+		setUp height, width
 		words.each {|word| placeWord word}
 		#fillRemainingGrid
-		printGrid
+		@grid.print
 	end
 
 private
@@ -43,24 +44,19 @@ private
 			end
 			lineNumber += 1
 		end
-		
+
 		return words
 	end
 
-	def setUp
-		@grid = Array.new @height
-		for i in 0..@height-1
-			@grid[i] = Array.new @width
-		end
-		@locations = Array(0..@height*@width-1).shuffle(random: @random)
+	def setUp height, width
+		@grid = Grid.new(height, width)
+		@locations = Array(0..height*width-1).shuffle(random: @random)
 	end
 
 	def fillRemainingGrid
-		for i in 0..@grid.length-1
-			for j in 0..@grid[i].length-1
-				if @grid[i][j] == nil then
-					@grid[i][j] = (@random.rand(26) + 65).chr
-				end
+		@grid.each do |x, y|
+			if @grid.get(x, y) == nil then
+				@grid.set(x, y, (@random.rand(26) + 65).chr)
 			end
 		end
 	end
@@ -74,11 +70,11 @@ private
 				return false
 			end
 			for location in @locations
-				nextX = location % @width
-				nextY = location / @height
-				@grid[nextY][nextX] = word[letterIndex]
+				nextX = location % @grid.width
+				nextY = location / @grid.height
+				@grid.set(nextX, nextY, word[letterIndex])
 				next if !placeWord(word, letterIndex + 1, nextX, nextY)
-				@locations.delete(nextY * @width + nextX)
+				@locations.delete(nextY * @grid.width + nextX)
 				return true
 			end
 		else
@@ -107,28 +103,28 @@ private
 					when 7
 						nextX -= 1
 				end
-				next if nextX == -1 || nextY == -1 || nextX == @width || nextY == @height || @grid[nextY][nextX] != nil
-				@grid[nextY][nextX] = word[letterIndex]
+				next if nextX == -1 || nextY == -1 || nextX == @grid.width || nextY == @grid.height || @grid.get(nextX, nextY) != nil
+				next if @canCrissCross && isCrissCross(lastX, lastY, nextX, nextY, direction)
+				@grid.set(nextX, nextY, word[letterIndex])
 				next if !placeWord(word, letterIndex + 1, nextX, nextY)
-				@locations.delete(nextY * @width + nextX)
+				@locations.delete(nextY * @grid.width + nextX)
 				return true
 			end
-			@grid[lastY][lastX] = nil
+			@grid.set(lastX, lastY, nil)
 			return false
 		end
 	end
 
-	def printWords words
-		words.each {|word| puts word}
+	def isCrissCross lastX, lastY, nextX, nextY, direction
+		return isDirectionDiagonal(direction) && @grid.get(lastX, nextY) && @grid.get(nextX, lastY)
 	end
 
-	def printGrid
-		for i in 0..@grid.length-1
-			for j in 0..@grid[i].length-1
-				print @grid[i][j] || "_"
-			end
-			puts
-		end
+	def isDirectionDiagonal direction
+		return direction % 2 == 0
+	end
+
+	def printWords words
+		words.each {|word| puts word}
 	end
 end
 
