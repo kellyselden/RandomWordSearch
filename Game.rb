@@ -1,5 +1,14 @@
 require './Grid'
 
+class Cell
+	def initialize char
+		@char = char
+		@num = 0
+	end
+	
+	attr_accessor :char, :num
+end
+
 class Game
 	def initialize height, width, seed
 		@canCrissCross = true
