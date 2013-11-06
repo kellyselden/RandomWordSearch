@@ -1,12 +1,16 @@
 require './Grid'
 
 class Cell
-	def initialize char
-		@char = char
+	def initialize
+		@chr = nil
 		@num = 0
 	end
-	
-	attr_accessor :char, :num
+
+	def empty?
+		@num == 0
+	end
+
+	attr_accessor :chr, :num
 end
 
 class Game
@@ -19,7 +23,10 @@ class Game
 		printWords words
 		puts
 		setUp height, width
-		words.each {|word| placeWord word}
+		words.each do |word|
+			@locations = @locations.shuffle(random: @random)
+			placeWord word
+		end
 		#fillRemainingGrid
 		@grid.print
 	end
@@ -59,21 +66,15 @@ private
 
 	def setUp height, width
 		@grid = Grid.new(height, width)
-		@locations = Array(0..height*width-1).shuffle(random: @random)
-	end
-
-	def fillRemainingGrid
-		@grid.each do |x, y|
-			if @grid.get(x, y) == nil then
-				@grid.set(x, y, (@random.rand(26) + 65).chr)
-			end
-		end
+		@grid.each {|x, y| @grid.set(x, y, Cell.new)}
+		@locations = Array(0..height*width-1)
 	end
 
 	def placeWord word, letterIndex = 0, lastX = nil, lastY = nil
 		if letterIndex == word.length then
 			return true
 		end
+		letter = word[letterIndex]
 		if letterIndex == 0 then
 			if @locations.empty? then
 				return false
@@ -81,9 +82,11 @@ private
 			for location in @locations
 				nextX = location % @grid.width
 				nextY = location / @grid.height
-				@grid.set(nextX, nextY, word[letterIndex])
+				cell = @grid.get(nextX, nextY)
+				next if cell.chr != letter || cell.num > 1
+				cell.chr = letter
+				cell.num += 1
 				next if !placeWord(word, letterIndex + 1, nextX, nextY)
-				@locations.delete(nextY * @grid.width + nextX)
 				return true
 			end
 		else
@@ -112,24 +115,38 @@ private
 					when 7
 						nextX -= 1
 				end
-				next if nextX == -1 || nextY == -1 || nextX == @grid.width || nextY == @grid.height || @grid.get(nextX, nextY) != nil
+				next if nextX == -1 || nextY == -1 || nextX == @grid.width || nextY == @grid.height
 				next if @canCrissCross && isCrissCross(lastX, lastY, nextX, nextY, direction)
-				@grid.set(nextX, nextY, word[letterIndex])
+				cell = @grid.get(nextX, nextY)
+				next if cell.chr != letter || cell.num > 1
+				cell.chr = letter
+				cell.num += 1
 				next if !placeWord(word, letterIndex + 1, nextX, nextY)
-				@locations.delete(nextY * @grid.width + nextX)
 				return true
 			end
-			@grid.set(lastX, lastY, nil)
+			cell = @grid.get(lastX, lastY)
+			if cell.num == 1 then
+				cell.chr = nil
+			end
+			cell.num -= 1
 			return false
 		end
 	end
 
 	def isCrissCross lastX, lastY, nextX, nextY, direction
-		return isDirectionDiagonal(direction) && @grid.get(lastX, nextY) && @grid.get(nextX, lastY)
+		return isDirectionDiagonal(direction) && @grid.get(lastX, nextY).chr && @grid.get(nextX, lastY).chr
 	end
 
 	def isDirectionDiagonal direction
 		return direction % 2 == 0
+	end
+
+	def fillRemainingGrid
+		@grid.each do |x, y|
+			if @grid.get(x, y) == nil then
+				@grid.set(x, y, Cell.new((@random.rand(26) + 65).chr, 0))
+			end
+		end
 	end
 
 	def printWords words
