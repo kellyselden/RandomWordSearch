@@ -1,26 +1,16 @@
+require './Words'
 require './Grid'
-
-class Cell
-	def initialize
-		@chr = nil
-		@num = 0
-	end
-
-	def empty?
-		@num == 0
-	end
-
-	attr_accessor :chr, :num
-end
+require './Cell'
 
 class Game
 	def initialize height, width, seed
+		@capacity = 2
 		@canCrissCross = true
 		@random = Random.new seed
 		puts seed
 		puts
-		words = getWords
-		printWords words
+		words = Words.get @random
+		Words.print words
 		puts
 		setUp height, width
 		words.each do |word|
@@ -33,40 +23,9 @@ class Game
 
 private
 
-	def getWords
-		filename = "2of12inf.txt"
-
-		numOfLines = 0
-		File.foreach(filename) do |line|
-			numOfLines += 1
-		end
-
-		numOfWords = @random.rand(10) + 1
-		lineNumbers = Array.new
-		for i in 0..numOfWords-1
-			begin
-				r = @random.rand(numOfLines)
-			end while lineNumbers.include? r
-			lineNumbers.push r
-		end
-
-		lineNumber = 0
-		words = Array.new
-		File.foreach(filename) do |line|
-			for i in 0..numOfWords
-				if lineNumber == lineNumbers[i] then
-					words.push line.chomp.upcase
-				end
-			end
-			lineNumber += 1
-		end
-
-		return words
-	end
-
 	def setUp height, width
 		@grid = Grid.new(height, width)
-		@grid.each {|x, y| @grid.set(x, y, Cell.new)}
+		@grid.each {|x, y| @grid.set(x, y, Cell.new(@capacity))}
 		@locations = Array(0..height*width-1)
 	end
 
@@ -76,16 +35,13 @@ private
 		end
 		letter = word[letterIndex]
 		if letterIndex == 0 then
-			if @locations.empty? then
-				return false
-			end
 			for location in @locations
 				nextX = location % @grid.width
 				nextY = location / @grid.height
 				cell = @grid.get(nextX, nextY)
-				next if cell.chr != letter || cell.num > 1
+				next if (cell.chr != letter && !cell.words.empty?) || (cell.chr == letter && cell.words.include?(word)) || cell.full?
 				cell.chr = letter
-				cell.num += 1
+				cell.words.push word
 				next if !placeWord(word, letterIndex + 1, nextX, nextY)
 				return true
 			end
@@ -116,25 +72,25 @@ private
 						nextX -= 1
 				end
 				next if nextX == -1 || nextY == -1 || nextX == @grid.width || nextY == @grid.height
-				next if @canCrissCross && isCrissCross(lastX, lastY, nextX, nextY, direction)
+				next if @canCrissCross && isCrissCross(lastX, lastY, nextX, nextY, direction, word)
 				cell = @grid.get(nextX, nextY)
-				next if cell.chr != letter || cell.num > 1
+				next if (cell.chr != letter && !cell.words.empty?) || (cell.chr == letter && cell.words.include?(word)) || cell.full?
 				cell.chr = letter
-				cell.num += 1
+				cell.words.push word
 				next if !placeWord(word, letterIndex + 1, nextX, nextY)
 				return true
 			end
 			cell = @grid.get(lastX, lastY)
-			if cell.num == 1 then
+			if cell.words.length == 1 then
 				cell.chr = nil
 			end
-			cell.num -= 1
+			cell.words.delete word
 			return false
 		end
 	end
 
-	def isCrissCross lastX, lastY, nextX, nextY, direction
-		return isDirectionDiagonal(direction) && @grid.get(lastX, nextY).chr && @grid.get(nextX, lastY).chr
+	def isCrissCross lastX, lastY, nextX, nextY, direction, word
+		return isDirectionDiagonal(direction) && @grid.get(lastX, nextY).words.include?(word) && @grid.get(nextX, lastY).words.include?(word)
 	end
 
 	def isDirectionDiagonal direction
@@ -143,14 +99,11 @@ private
 
 	def fillRemainingGrid
 		@grid.each do |x, y|
-			if @grid.get(x, y) == nil then
-				@grid.set(x, y, Cell.new((@random.rand(26) + 65).chr, 0))
+			cell = @grid.get(x, y)
+			if cell.words.empty? then
+				cell.chr = (@random.rand(26) + 65).chr
 			end
 		end
-	end
-
-	def printWords words
-		words.each {|word| puts word}
 	end
 end
 

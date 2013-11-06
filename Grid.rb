@@ -33,7 +33,7 @@ class Grid
 	def print
 		for y in 0..@grid.length-1
 			for x in 0..@grid[y].length-1
-				Kernel::print get(x, y) || "_"
+				get(x, y).print
 			end
 			puts
 		end
