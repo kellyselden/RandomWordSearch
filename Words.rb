@@ -1,5 +1,5 @@
 class Words
-	def self.get random
+	def self.get numOfWords, random
 		filename = "2of12inf.txt"
 
 		numOfLines = 0
@@ -7,7 +7,6 @@ class Words
 			numOfLines += 1
 		end
 
-		numOfWords = random.rand(10) + 1
 		lineNumbers = Array.new
 		for i in 0..numOfWords-1
 			begin

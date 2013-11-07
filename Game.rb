@@ -3,13 +3,13 @@ require './Grid'
 require './Cell'
 
 class Game
-	def initialize height, width, seed
+	def initialize height, width, numOfWords, seed
 		@capacity = 2
 		@canCrissCross = true
 		@random = Random.new seed
 		puts seed
 		puts
-		words = Words.get @random
+		words = Words.get(@random.rand(numOfWords) + 1, @random)
 		Words.print words
 		puts
 		setUp height, width
@@ -107,4 +107,4 @@ private
 	end
 end
 
-Game.new 10, 10, ARGV.empty? ? Random.new_seed : ARGV[0].to_i
+Game.new 20, 20, 20, ARGV.empty? ? Random.new_seed : ARGV[0].to_i
