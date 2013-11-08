@@ -1,6 +1,6 @@
-require './Words'
-require './Grid'
-require './Cell'
+#require './words'
+#require './grid'
+#require './cell'
 
 class Game
 	def initialize height, width, numOfWords, seed
@@ -9,17 +9,19 @@ class Game
 		@random = Random.new seed
 		puts seed
 		puts
-		words = Words.get(@random.rand(numOfWords) + 1, @random)
-		Words.print words
+		@words = Words.get(@random.rand(numOfWords) + 1, @random)
+		Words.print @words
 		puts
 		setUp height, width
-		words.each do |word|
+		@words.each do |word|
 			@locations = @locations.shuffle(random: @random)
 			placeWord word
 		end
-		#fillRemainingGrid
+		fillRemainingGrid
 		@grid.print
 	end
+
+	attr_accessor :grid, :words
 
 private
 

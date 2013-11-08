@@ -1,2 +1,2 @@
-RandomWordSearch
+random_word_search
 ================

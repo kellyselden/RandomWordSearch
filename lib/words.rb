@@ -1,9 +1,8 @@
 class Words
 	def self.get numOfWords, random
-		filename = "2of12inf.txt"
-
+		filePath = File.expand_path("2of12inf.txt", File.dirname(__FILE__))
 		numOfLines = 0
-		File.foreach(filename) do |line|
+		File.foreach(filePath) do |line|
 			numOfLines += 1
 		end
 
@@ -17,7 +16,7 @@ class Words
 
 		lineNumber = 0
 		words = Array.new
-		File.foreach(filename) do |line|
+		File.foreach(filePath) do |line|
 			for i in 0..numOfWords
 				if lineNumber == lineNumbers[i] then
 					words.push line.chomp.upcase

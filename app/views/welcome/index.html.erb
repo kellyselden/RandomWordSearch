@@ -1,0 +1,16 @@
+<table>
+<% for y in 0..@grid.height-1 %>
+	<tr>
+	<% for x in 0..@grid.width-1 %>
+		<td>
+			<%= @grid.get(x, y).chr %>
+		</td>
+	<% end %>
+	</tr>
+<% end %>
+</table>
+<% @words.each do |word| %>
+<div>
+	<%= word %>
+</div>
+<% end %>
