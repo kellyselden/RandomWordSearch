@@ -27,8 +27,4 @@ class Words
 
 		return words
 	end
-
-	def self.print words
-		words.each {|word| puts word}
-	end
 end

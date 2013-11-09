@@ -3,18 +3,13 @@ class Game
 		@capacity = 2
 		@canCrissCross = true
 		@random = Random.new seed
-		puts seed
-		puts
 		@words = Words.get(@random.rand(numOfWords) + 1, @random)
-		Words.print @words
-		puts
 		setUp height, width
 		@words.each do |word|
 			@locations = @locations.shuffle(random: @random)
 			placeWord word
 		end
 		fillRemainingGrid
-		@grid.print
 	end
 
 	attr_accessor :grid, :words

@@ -30,12 +30,14 @@ class Grid
 		end
 	end
 
-	def print
+	def to_s
+		str = ""
 		for y in 0..@grid.length-1
 			for x in 0..@grid[y].length-1
-				get(x, y).print
+				str << get(x, y).to_s + " "
 			end
-			puts
+			str << "\n"
 		end
+		return str
 	end
 end

@@ -9,8 +9,8 @@ class Cell
 		@words.length == @capacity
 	end
 
-	def print
-		Kernel::print @chr || "_"
+	def to_s
+		@chr || "_"
 	end
 
 	attr_accessor :chr, :words

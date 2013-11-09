@@ -3,4 +3,10 @@ require './lib/words'
 require './lib/grid'
 require './lib/cell'
 
-Game.new 20, 20, 20, ARGV.empty? ? Random.new_seed : ARGV[0].to_i
+seed = ARGV.empty? ? Random.new_seed : ARGV[0].to_i
+puts seed
+puts
+game = Game.new 10, 10, 10, seed
+game.words.each {|word| puts word}
+puts
+puts game.grid
