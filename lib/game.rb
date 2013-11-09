@@ -1,7 +1,3 @@
-#require './words'
-#require './grid'
-#require './cell'
-
 class Game
 	def initialize height, width, numOfWords, seed
 		@capacity = 2
@@ -108,5 +104,3 @@ private
 		end
 	end
 end
-
-Game.new 20, 20, 20, ARGV.empty? ? Random.new_seed : ARGV[0].to_i
