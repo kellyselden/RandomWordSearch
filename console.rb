@@ -1,5 +1,6 @@
 require './lib/game'
 require './lib/words'
+require './lib/word'
 require './lib/grid'
 require './lib/cell'
 

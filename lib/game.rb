@@ -3,11 +3,15 @@ class Game
 		@capacity = 2
 		@canCrissCross = true
 		@random = Random.new seed
-		@words = Words.get(@random.rand(numOfWords) + 1, @random)
+		words = Words.get(@random.rand(numOfWords) + 1, @random)
 		setUp height, width
-		@words.each do |word|
+		@words = Array.new
+		words.each do |word|
 			@locations = @locations.shuffle(random: @random)
-			placeWord word
+			cells = placeWord word
+			if cells then
+				@words.push Word.new word, cells
+			end
 		end
 		fillRemainingGrid
 	end
@@ -24,7 +28,7 @@ private
 
 	def placeWord word, letterIndex = 0, lastX = nil, lastY = nil
 		if letterIndex == word.length then
-			return true
+			return Array.new
 		end
 		letter = word[letterIndex]
 		if letterIndex == 0 then
@@ -35,8 +39,10 @@ private
 				next if (cell.chr != letter && !cell.words.empty?) || (cell.chr == letter && cell.words.include?(word)) || cell.full?
 				cell.chr = letter
 				cell.words.push word
-				next if !placeWord(word, letterIndex + 1, nextX, nextY)
-				return true
+				cells = placeWord(word, letterIndex + 1, nextX, nextY)
+				next if !cells
+				cells.push cell
+				return cells
 			end
 		else
 			for direction in Array(0..7).shuffle(random: @random)
@@ -70,16 +76,18 @@ private
 				next if (cell.chr != letter && !cell.words.empty?) || (cell.chr == letter && cell.words.include?(word)) || cell.full?
 				cell.chr = letter
 				cell.words.push word
-				next if !placeWord(word, letterIndex + 1, nextX, nextY)
-				return true
+				cells = placeWord(word, letterIndex + 1, nextX, nextY)
+				next if !cells
+				cells.push cell
+				return cells
 			end
 			cell = @grid.get(lastX, lastY)
 			if cell.words.length == 1 then
 				cell.chr = nil
 			end
 			cell.words.delete word
-			return false
 		end
+		return nil
 	end
 
 	def isCrissCross lastX, lastY, nextX, nextY, direction, word
