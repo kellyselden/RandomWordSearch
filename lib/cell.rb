@@ -1,5 +1,7 @@
 class Cell
-	def initialize capacity
+	def initialize x, y, capacity
+	  @x = x
+	  @y = y
 		@capacity = capacity
 		@chr = nil
 		@words = Array.new

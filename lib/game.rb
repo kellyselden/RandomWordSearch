@@ -22,7 +22,7 @@ private
 
 	def setUp height, width
 		@grid = Grid.new(height, width)
-		@grid.each {|x, y| @grid.set(x, y, Cell.new(@capacity))}
+		@grid.each {|x, y| @grid.set(x, y, Cell.new(x, y, @capacity))}
 		@locations = Array(0..height*width-1)
 	end
 
@@ -41,7 +41,7 @@ private
 				cell.words.push word
 				cells = placeWord(word, letterIndex + 1, nextX, nextY)
 				next if !cells
-				cells.push cell
+				cells.unshift cell
 				return cells
 			end
 		else
@@ -78,7 +78,7 @@ private
 				cell.words.push word
 				cells = placeWord(word, letterIndex + 1, nextX, nextY)
 				next if !cells
-				cells.push cell
+				cells.unshift cell
 				return cells
 			end
 			cell = @grid.get(lastX, lastY)
