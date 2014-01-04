@@ -2,7 +2,7 @@
 <% for y in 0..@grid.height-1 %>
 	<tr>
 	<% for x in 0..@grid.width-1 %>
-		<td><div style="position:relative"><%= @grid.get(x, y) %></div></td>
+		<td><div class="letterContainer disableTextSelect"><%= @grid.get(x, y) %></div></td>
 	<% end %>
 	</tr>
 <% end %>
